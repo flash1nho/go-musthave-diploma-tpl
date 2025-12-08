@@ -1,17 +1,23 @@
 package main
 
 import (
-    "net/http"
-    "github.com/flash1nho/go-musthave-diploma-tpl/app/controllers"
     "fmt"
+
+    "github.com/flash1nho/go-musthave-diploma-tpl/config"
+    "github.com/flash1nho/go-musthave-diploma-tpl/db"
+    "github.com/flash1nho/go-musthave-diploma-tpl/handler"
+    "github.com/flash1nho/go-musthave-diploma-tpl/service"
 )
 
 func main() {
-    http.HandleFunc("/user", controllers.GetUserHandler)
+	  apiServer, accrualServer, log, databaseURI := config.Settings()
+	  dbPool, err := db.NewDB(databaseURI)
 
-    fmt.Println("Сервер запущен на http://localhost:8080")
-
-    if err := http.ListenAndServe(":8080", nil); err != nil {
-        fmt.Println("Ошибка запуска сервера:", err)
+    if err != nil {
+        log.Error(fmt.Sprint(err))
     }
+
+    h := handler.NewHandler(dbPool, log)
+    servers := []config.Server{apiServer, accrualServer}
+    service.NewService(h, servers).Run()
 }

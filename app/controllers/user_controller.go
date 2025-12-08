@@ -2,20 +2,20 @@ package controllers
 
 import (
     "net/http"
-    "strconv"
+
     "github.com/flash1nho/go-musthave-diploma-tpl/app/models"
+
+    "github.com/jackc/pgx/v5/pgxpool"
 )
 
-func GetUserHandler(w http.ResponseWriter, r *http.Request) {
-    idStr := r.URL.Query().Get("id")
-    id, err := strconv.Atoi(idStr)
+type UserController struct {
+    Pool *pgxpool.Pool
+}
 
-    if err != nil {
-        http.Error(w, "Некорректный ID пользователя", http.StatusBadRequest)
-        return
-    }
-
-    user, err := models.FindUserByID(id)
+func (controller *UserController) Register(w http.ResponseWriter, r *http.Request) {
+    login := r.URL.Query().Get("login")
+    password := r.URL.Query().Get("password")
+    _, err := models.UserRegisterWith(controller.Pool, login, password)
 
     if err != nil {
         http.Error(w, err.Error(), http.StatusNotFound)

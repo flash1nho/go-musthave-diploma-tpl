@@ -1,17 +1,21 @@
 package models
 
-import "fmt"
+import (
+		"fmt"
+
+		"github.com/jackc/pgx/v5/pgxpool"
+)
 
 type User struct {
-    ID   int
-    Name string
-    Email string
+    ID       int
+    Login    string
+    Password string
 }
 
-func FindUserByID(id int) (*User, error) {
-    if id == 1 {
-        return &User{ID: 1, Name: "Иван Петров", Email: "ivan@example.com"}, nil
+func UserRegisterWith(pool *pgxpool.Pool, login string, password string) (*User, error) {
+    if login == "login" {
+        return &User{ID: 1, Login: "login", Password: "password"}, nil
     }
 
-    return nil, fmt.Errorf("пользователь с ID %d не найден", id)
+    return nil, fmt.Errorf("пользователь с login %s не найден", login)
 }
