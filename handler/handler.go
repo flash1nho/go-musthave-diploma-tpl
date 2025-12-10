@@ -9,13 +9,13 @@ import (
 )
 
 type Handler struct {
-    Users *controllers.UserController
+    UserController *controllers.UserController
     Log   *zap.Logger
 }
 
 func NewHandler(pool *pgxpool.Pool, log *zap.Logger) *Handler {
     return &Handler{
-        Users: &controllers.UserController{Pool: pool},
+        UserController: &controllers.UserController{Pool: pool, Log: log},
         Log:   log,
     }
 }

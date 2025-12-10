@@ -10,11 +10,11 @@ import (
 )
 
 func main() {
-	  apiServer, accrualServer, log, databaseURI := config.Settings()
-	  dbPool, err := db.NewDB(databaseURI)
+    apiServer, accrualServer, log, databaseURI := config.Settings()
+    dbPool, err := db.NewDB(databaseURI)
 
     if err != nil {
-        log.Error(fmt.Sprint(err))
+        log.Fatal(fmt.Sprint(err))
     }
 
     h := handler.NewHandler(dbPool, log)

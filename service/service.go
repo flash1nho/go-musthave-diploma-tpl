@@ -38,7 +38,7 @@ func (s *Service) mainRouter() http.Handler {
     r.Use(middlewares.Decompressor)
     r.Use(middlewares.Auth)
 
-    r.Post("/api/user/register", s.handler.Users.Register)
+    r.Post("/api/user/register", s.handler.UserController.Register)
 
     return r
 }
