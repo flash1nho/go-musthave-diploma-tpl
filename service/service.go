@@ -36,9 +36,16 @@ func (s *Service) mainRouter() http.Handler {
 
     r.Use(middleware.Logger)
     r.Use(middlewares.Decompressor)
-    r.Use(middlewares.Auth)
 
     r.Post("/api/user/register", s.handler.UserController.Register)
+    r.Post("/api/user/login", s.handler.UserController.Login)
+
+    // TODO: protected functions
+    // r.Group(func(r chi.Router) {
+    // 		r.Use(middlewares.Auth)
+    //     r.Get("/protected", protectedHandler)
+    //     r.Post("/protected/data", protectedHandler)
+    // })
 
     return r
 }
@@ -60,7 +67,7 @@ func runServer(s *Service, ctx context.Context, wg *sync.WaitGroup, addr string)
 		s.handler.Log.Info(fmt.Sprintf("Сервер запущен на http://%s", server.Addr))
 
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			s.handler.Log.Error(fmt.Sprintf("Ошибка запуска сервера http://%s: %v", server.Addr, err))
+			s.handler.Log.Error(fmt.Sprintf("ошибка запуска сервера http://%s: %v", server.Addr, err))
 		}
 	}()
 

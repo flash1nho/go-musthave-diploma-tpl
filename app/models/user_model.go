@@ -16,24 +16,46 @@ type User struct {
     Password string
 }
 
-func UserRegisterWith(login string, password string, pool *pgxpool.Pool) (bool, error) {
+func UserRegister(login string, password string, pool *pgxpool.Pool) (int, error) {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 		if err != nil {
-				return false, err
+				return 0, err
 		}
 
-    _, err = pool.Exec(context.TODO(), `INSERT INTO users (login, password) VALUES ($1, $2)`, login, hashedPassword)
+		var user User
+
+    query := `INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id`
+		err = pool.QueryRow(context.TODO(), query, login, hashedPassword).Scan(&user.ID)
 
 		if err != nil {
         var pgErr *pgconn.PgError
 
         if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
-        		return true, nil
+						return 0, nil
         }
 
-				return false, err
+				return 0, err
 		}
 
-		return false, nil
+		return user.ID, nil
+}
+
+func UserLogin(login string, password string, pool *pgxpool.Pool) (int, error) {
+		var user User
+
+    query := `SELECT id, password FROM users WHERE users.login = $1`
+		err := pool.QueryRow(context.TODO(), query, login).Scan(&user.ID, &user.Password)
+
+		if err != nil {
+				return 0, err
+		}
+
+		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+
+	  if err != nil {
+				return 0, nil
+		}
+
+		return user.ID, nil
 }
